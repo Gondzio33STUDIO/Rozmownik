@@ -54,7 +54,7 @@ abstract class AppDatabase : RoomDatabase() {
 
                 messageDao.insertMessage(Message(conversationId = "Anna Nowak", text = "Cześć, co u Ciebie?", timestamp = System.currentTimeMillis() - 1000 * 60 * 5, senderName = "Anna Nowak", isSentByUser = false))
                 messageDao.insertMessage(Message(conversationId = "Jan Kowalski", text = "Dzięki za wczoraj!", timestamp = System.currentTimeMillis() - 1000 * 60 * 60 * 2, senderName = "Jan Kowalski", isSentByUser = false))
-                 messageDao.insertMessage(Message(conversationId = "Jan Kowalski", text = "Nie ma za co!", timestamp = System.currentTimeMillis() - 1000 * 60 * 60 * 1, senderName = "Ja", isSentByUser = true))
+                messageDao.insertMessage(Message(conversationId = "Jan Kowalski", text = "Nie ma za co!", timestamp = System.currentTimeMillis() - 1000 * 60 * 60 * 1, senderName = "Ja", isSentByUser = true))
             }
         }
     }

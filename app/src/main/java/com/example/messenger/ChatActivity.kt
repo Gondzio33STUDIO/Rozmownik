@@ -47,7 +47,9 @@ class ChatActivity : AppCompatActivity() {
         lifecycleScope.launch {
             messageDao.getMessagesForConversation(contactName).collectLatest { messages ->
                 messagesAdapter.updateData(messages)
-                messagesRecyclerView.scrollToPosition(messages.size - 1)
+                if (messages.isNotEmpty()) {
+                    messagesRecyclerView.scrollToPosition(messages.size - 1)
+                }
             }
         }
 

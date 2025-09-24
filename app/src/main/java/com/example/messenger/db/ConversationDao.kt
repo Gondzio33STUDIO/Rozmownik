@@ -1,7 +1,6 @@
 package com.example.messenger.db
 
 import androidx.room.*
-import com.example.messenger.db.Conversation
 import kotlinx.coroutines.flow.Flow
 
 @Dao
