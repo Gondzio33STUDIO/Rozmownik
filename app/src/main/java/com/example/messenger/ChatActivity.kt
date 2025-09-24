@@ -1,44 +1,79 @@
 package com.example.messenger
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.messenger.adapters.MessagesAdapter
-import com.example.messenger.models.Message
+import com.example.messenger.db.AppDatabase
+import com.example.messenger.db.Message
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class ChatActivity : AppCompatActivity() {
+
+    private lateinit var messagesAdapter: MessagesAdapter
+    private lateinit var messagesRecyclerView: RecyclerView
+    private lateinit var contactName: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        val contactName = intent.getStringExtra("CONTACT_NAME") ?: "Rozmowa"
+        contactName = intent.getStringExtra("CONTACT_NAME") ?: "Rozmowa"
         supportActionBar?.title = contactName
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        messagesRecyclerView = findViewById(R.id.messagesRecyclerView)
+        val messageEditText: EditText = findViewById(R.id.messageEditText)
+        val sendButton: Button = findViewById(R.id.sendButton)
 
-        val messagesRecyclerView: RecyclerView = findViewById(R.id.messagesRecyclerView)
+        // Inicjalizacja adaptera
+        messagesAdapter = MessagesAdapter(emptyList())
         messagesRecyclerView.layoutManager = LinearLayoutManager(this).apply {
             stackFromEnd = true
         }
+        messagesRecyclerView.adapter = messagesAdapter
 
-        val sampleMessages = createSampleMessages(contactName)
-        val adapter = MessagesAdapter(sampleMessages)
-        messagesRecyclerView.adapter = adapter
+        // Pobranie DAO
+        val messageDao = AppDatabase.getDatabase(applicationContext).messageDao()
+        val conversationDao = AppDatabase.getDatabase(applicationContext).conversationDao()
+
+        // Obserwowanie wiadomości dla tej konwersacji
+        lifecycleScope.launch {
+            messageDao.getMessagesForConversation(contactName).collectLatest { messages ->
+                messagesAdapter.updateData(messages)
+                messagesRecyclerView.scrollToPosition(messages.size - 1)
+            }
+        }
+
+        sendButton.setOnClickListener {
+            val messageText = messageEditText.text.toString()
+            if (messageText.isNotBlank()) {
+                val newMessage = Message(
+                    conversationId = contactName,
+                    text = messageText,
+                    timestamp = System.currentTimeMillis(),
+                    senderName = "Ja",
+                    isSentByUser = true
+                )
+
+                lifecycleScope.launch(Dispatchers.IO) {
+                    // Zapisz nową wiadomość i zaktualizuj konwersację
+                    messageDao.insertMessage(newMessage)
+                    conversationDao.updateLastMessage(contactName, messageText, newMessage.timestamp)
+                }
+                messageEditText.text.clear()
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
-    }
-
-    private fun createSampleMessages(contactName: String): List<Message> {
-        return listOf(
-            Message("Cześć!", System.currentTimeMillis() - 1000 * 60 * 10, contactName, false),
-            Message("Hej, co tam u Ciebie, $contactName?", System.currentTimeMillis() - 1000 * 60 * 9, "Ja", true),
-            Message("Wszystko dobrze, a u Ciebie?", System.currentTimeMillis() - 1000 * 60 * 8, contactName, false),
-            Message("Też ok. Dzięki za wczoraj!", System.currentTimeMillis() - 1000 * 60 * 7, "Ja", true),
-            Message("Nie ma sprawy :)", System.currentTimeMillis() - 1000 * 60 * 6, contactName, false)
-        )
     }
 }

@@ -8,11 +8,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.messenger.ChatActivity
 import com.example.messenger.R
-import com.example.messenger.models.Conversation
+import com.example.messenger.db.Conversation
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ConversationsAdapter(private val conversations: List<Conversation>) :
+class ConversationsAdapter(private var conversations: List<Conversation>) :
     RecyclerView.Adapter<ConversationsAdapter.ConversationViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationViewHolder {
@@ -27,6 +27,11 @@ class ConversationsAdapter(private val conversations: List<Conversation>) :
     }
 
     override fun getItemCount(): Int = conversations.size
+
+    fun updateData(newConversations: List<Conversation>) {
+        conversations = newConversations
+        notifyDataSetChanged() // W prawdziwej aplikacji lepiej użyć DiffUtil
+    }
 
     inner class ConversationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val contactNameTextView: TextView = itemView.findViewById(R.id.contactNameTextView)

@@ -6,9 +6,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.messenger.R
-import com.example.messenger.models.Message
+import com.example.messenger.db.Message
 
-class MessagesAdapter(private val messages: List<Message>) :
+class MessagesAdapter(private var messages: List<Message>) :
     RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
 
     companion object {
@@ -39,6 +39,11 @@ class MessagesAdapter(private val messages: List<Message>) :
     }
 
     override fun getItemCount(): Int = messages.size
+
+    fun updateData(newMessages: List<Message>) {
+        messages = newMessages
+        notifyDataSetChanged() // W prawdziwej aplikacji lepiej użyć DiffUtil
+    }
 
     inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val messageText: TextView = itemView.findViewById(R.id.messageText)
