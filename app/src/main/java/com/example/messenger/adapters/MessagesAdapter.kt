@@ -11,8 +11,10 @@ import com.example.messenger.models.Message
 class MessagesAdapter(private val messages: List<Message>) :
     RecyclerView.Adapter<MessagesAdapter.MessageViewHolder>() {
 
-    private const val VIEW_TYPE_SENT = 1
-    private const val VIEW_TYPE_RECEIVED = 2
+    companion object {
+        private const val VIEW_TYPE_SENT = 1
+        private const val VIEW_TYPE_RECEIVED = 2
+    }
 
     override fun getItemViewType(position: Int): Int {
         return if (messages[position].isSentByUser) {

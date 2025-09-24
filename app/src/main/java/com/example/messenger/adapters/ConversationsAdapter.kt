@@ -1,7 +1,5 @@
 package com.example.messenger.adapters
 
-package com.example.messenger.adapters
-
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
